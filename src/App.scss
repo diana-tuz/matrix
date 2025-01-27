@@ -4,3 +4,17 @@
   padding: 2rem;
   text-align: center;
 }
+
+.flex {
+  display: flex;
+  flex-direction: row;
+  background-color: aquamarine;
+  color: black;
+  gap: 15px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
