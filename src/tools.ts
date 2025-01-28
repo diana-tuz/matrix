@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { CellType } from './types'
+import { CellsListType, CellType } from './types'
 
 export const generateRandomNumber = () => {
   const randomNumber = Math.round(Math.random() * 900 + 100)
@@ -29,4 +29,33 @@ export const generateRow = (index: number, cellCount: number): CellType[] => {
   ]
 
   return rowList
+}
+export const calculateColumnPercents = (
+  list: CellsListType,
+  columnCount: number,
+) => {
+  const percentsResult = [] as CellType[]
+
+  for (let x = 0; x <= columnCount; x++) {
+    let columnSum = 0
+
+    Object.keys(list).forEach((rowKey) => {
+      const cell = list[+rowKey][x]
+      if (cell) {
+        columnSum += cell.amount
+      }
+    })
+    percentsResult.push(
+      x === columnCount
+        ? {
+            id: `${x}-percents`,
+            amount: -1,
+          }
+        : {
+            id: `${x}-percents`,
+            amount: columnSum * 0.5,
+          },
+    )
+  }
+  return percentsResult
 }

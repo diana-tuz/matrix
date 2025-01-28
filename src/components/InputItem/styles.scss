@@ -1,0 +1,23 @@
+.input {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+
+  &__label {
+    color: var(--text);
+    text-transform: lowercase;
+  }
+
+  &__item {
+    background-color: var(--secondary);
+    outline: none;
+    padding: 10px;
+    width: 2vw;
+    aspect-ratio: 1;
+
+    &:focus {
+      background-color: var(--accent);
+      color: var(--primary);
+    }
+  }
+}

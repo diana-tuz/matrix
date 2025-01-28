@@ -6,7 +6,7 @@ import {
   useContext,
   useState,
 } from 'react'
-import { generateAmount } from './tools'
+import { calculateColumnPercents, generateAmount } from './tools'
 import { CellsListType } from './types'
 
 type ContextType = {
@@ -18,9 +18,17 @@ type ContextType = {
     colCount: number
     setColCount: (n: number) => void
   }
+  closestCount: {
+    closestCount: number
+    setClosestCount: (n: number) => void
+  }
   cellsList: {
     cellsList: CellsListType | undefined
     setCellsList: (n: CellsListType) => void
+  }
+  displayMatrix: {
+    displayMatrix: boolean
+    toggleDisplayMatrix: (display?: boolean) => void
   }
   handleUpdateCellsList: (row: number, itemId?: string) => void
 }
@@ -34,18 +42,28 @@ const defaultValue: ContextType = {
     colCount: 0,
     setColCount: () => {},
   },
+  closestCount: {
+    closestCount: 0,
+    setClosestCount: () => {},
+  },
   cellsList: {
     cellsList: undefined,
     setCellsList: () => {},
+  },
+  displayMatrix: {
+    displayMatrix: false,
+    toggleDisplayMatrix: () => {},
   },
   handleUpdateCellsList: () => {},
 }
 const Context = createContext<ContextType>(defaultValue)
 
 const ContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [rowCount, setRowCount] = useState(0)
-  const [colCount, setColCount] = useState(0)
   const [cellsList, setCellsList] = useState<CellsListType>()
+  const [closestCount, setClosestCount] = useState(1)
+  const [colCount, setColCount] = useState(0)
+  const [displayMatrix, setDisplayMatrix] = useState(false)
+  const [rowCount, setRowCount] = useState(0)
 
   const handleUpdateCellsList = (row: number, itemId?: string) => {
     const list = cellsList as CellsListType
@@ -71,14 +89,26 @@ const ContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
       const generatedAmount = generateAmount(updatedRow)
 
+      const preparedList = {
+        ...prev,
+        [row]: [...updatedRow],
+        [rowCount + 1]: [],
+      }
+
+      const percentsRow = calculateColumnPercents(preparedList, colCount)
+
       return {
         ...prev,
         [row]: [
           ...updatedRow,
           { id: `${row}-amount`, amount: generatedAmount },
         ],
+        [rowCount + 1]: percentsRow,
       }
     })
+  }
+  const toggleDisplayMatrix = (display?: boolean) => {
+    setDisplayMatrix(display !== undefined ? display : !displayMatrix)
   }
 
   const value = {
@@ -90,10 +120,15 @@ const ContextProvider: FC<PropsWithChildren> = ({ children }) => {
       colCount,
       setColCount,
     },
+    closestCount: {
+      closestCount,
+      setClosestCount,
+    },
     cellsList: {
       cellsList,
       setCellsList,
     },
+    displayMatrix: { displayMatrix, toggleDisplayMatrix },
     handleUpdateCellsList,
   }
 

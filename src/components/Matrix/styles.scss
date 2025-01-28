@@ -1,0 +1,35 @@
+.matrix {
+  display: flex;
+  flex-direction: column;
+  max-width: 1280px;
+  overflow-y: auto;
+
+  &__grid {
+    display: grid;
+  }
+
+  &__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    background-color: var(--primary);
+    border: 1px solid var(--text);
+    padding: 15px;
+
+    &:disabled {
+      opacity: 1;
+      color: inherit;
+    }
+
+    &-hovered {
+      &:hover {
+        background-color: var(--accent);
+      }
+    }
+  }
+}
+
+.highlighted {
+  background-color: var(--secondary);
+}
