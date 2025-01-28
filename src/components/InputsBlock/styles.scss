@@ -3,4 +3,10 @@
   align-items: center;
   margin: 0 auto;
   gap: 10vw;
+
+  &__display {
+    background-color: var(--secondary);
+    padding: 20px;
+    border: 1px solid var(--text);
+  }
 }

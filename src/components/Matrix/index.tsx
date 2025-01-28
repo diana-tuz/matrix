@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useCustomContext } from '../../appContext'
 import { calculateColumnPercents, generateRow } from '../../tools'
 
 import { CellsListType, CellType } from '../../types'
 
+import { icons } from '../../assets'
+import { DeleteColumn } from '../DeleteColumn'
+import { TableHeader } from '../TableHeader'
 import './styles.scss'
 
 export const Matrix = () => {
@@ -14,31 +17,37 @@ export const Matrix = () => {
     cellsList: { cellsList, setCellsList },
     closestCount: { closestCount },
     displayMatrix: { displayMatrix },
+
+    handleDeleteRow,
     handleUpdateCellsList,
   } = useCustomContext()
 
   const [highlightedCells, setHighlightedCells] = useState<Set<string>>(
     new Set(),
   )
-
-  const generateMatrix = useCallback((): CellsListType => {
-    const newMatrix: CellsListType = {}
-
-    for (let i = 0; i < rowCount; i++) {
-      newMatrix[i] = generateRow(i, colCount)
-    }
-    const percentsRow = calculateColumnPercents(newMatrix, colCount)
-
-    return { ...newMatrix, [rowCount + 1]: percentsRow }
-  }, [colCount, rowCount])
+  const [selectedRow, setSelectedRow] = useState(-1)
 
   useEffect(() => {
     if (!rowCount || !colCount) {
       return
     }
+    const generateMatrix = (): CellsListType => {
+      const newMatrix: CellsListType = {}
+
+      for (let i = 0; i < rowCount; i++) {
+        newMatrix[i] = generateRow(i, colCount)
+      }
+      const percentsRow = calculateColumnPercents(newMatrix, colCount)
+
+      return { ...newMatrix, [rowCount + 1]: percentsRow }
+    }
+
     const matrix = generateMatrix()
-    setCellsList(matrix)
-  }, [rowCount, colCount, generateMatrix, setCellsList])
+
+    if (!displayMatrix) {
+      setCellsList(matrix)
+    }
+  }, [rowCount, colCount, setCellsList, displayMatrix])
 
   const highlightClosestCells = (hovered: CellType) => {
     const allCells = Object.values(cellsList as CellsListType)
@@ -57,46 +66,33 @@ export const Matrix = () => {
     setHighlightedCells(new Set(closest))
   }
 
-  const handleMouseEnter = (cell: CellType) => {
-    if (cell.amount > 0) {
+  const handleMouseEnter = (cell: CellType, row: number) => {
+    if (cell.amount > 0 && !cell.id.includes('amount')) {
       highlightClosestCells(cell)
+    }
+    if (cell.id.includes('amount')) {
+      setSelectedRow(row)
     }
   }
 
   const handleMouseLeave = () => {
     setHighlightedCells(new Set())
+    setSelectedRow(-1)
   }
 
   const isHighlighted = (id: string) => highlightedCells.has(id)
-  const tableHeader = Array(colCount + 2).fill('')
+
   return (
     displayMatrix &&
     cellsList &&
     !!Object.keys(cellsList).length && (
       <div className="matrix">
-        <div
-          className={'matrix__grid'}
-          style={{
-            gridTemplateColumns: `repeat(${colCount + 2}, minmax(60px, 1fr))`,
-          }}
-        >
-          {tableHeader.map((_, index) => (
-            <div className="matrix__cell ">
-              <p>
-                {index > 0
-                  ? index < colCount + 1
-                    ? `Cell values N=${index}`
-                    : 'Sum values'
-                  : ''}
-              </p>
-            </div>
-          ))}
-        </div>
+        <TableHeader />
         {Object.keys(cellsList).map((key) => (
           <div
             className={'matrix__grid'}
             style={{
-              gridTemplateColumns: `repeat(${colCount + 2}, minmax(40px, 1fr))`,
+              gridTemplateColumns: `repeat(${colCount + 3}, minmax(40px, 1fr))`,
             }}
             key={key}
           >
@@ -112,7 +108,7 @@ export const Matrix = () => {
             {cellsList[+key].map((item) => (
               <button
                 onMouseOver={() => {
-                  handleMouseEnter(item)
+                  handleMouseEnter(item, +key)
                 }}
                 onMouseOut={handleMouseLeave}
                 className={`matrix__cell ${item.amount > 0 && 'matrix__cell-hovered'} ${isHighlighted(item.id) && 'highlighted'}`}
@@ -120,11 +116,30 @@ export const Matrix = () => {
                 key={item.id}
                 onClick={() => handleUpdateCellsList(+key, item.id)}
               >
-                {item.amount > 0 ? item.amount : ''}
+                {item.amount > 0
+                  ? +key === selectedRow
+                    ? `${Math.round((item.amount / cellsList[+key][rowCount]?.amount) * 100)}%`
+                    : item.amount
+                  : ''}
               </button>
             ))}
+            {+key < rowCount ? (
+              <button
+                className="button"
+                key={+key + 1}
+                onClick={() => {
+                  handleDeleteRow(+key)
+                }}
+              >
+                <img className="icon" alt={'delete'} src={icons.remove} />
+              </button>
+            ) : (
+              <div className="matrix__cell" />
+            )}
           </div>
         ))}
+
+        <DeleteColumn />
       </div>
     )
   )

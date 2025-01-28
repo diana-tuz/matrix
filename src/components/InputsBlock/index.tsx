@@ -8,17 +8,33 @@ export const InputsBlock = () => {
     colCount: { colCount, setColCount },
     cellsList: { cellsList },
     closestCount: { closestCount, setClosestCount },
-    displayMatrix: { toggleDisplayMatrix },
+    displayMatrix: { displayMatrix, toggleDisplayMatrix },
+    addNewCol,
+    addNewRow,
+    handleDeleteRow,
+    handleDeleteCol,
   } = useCustomContext()
 
   const handleChangeRow = (e: React.ChangeEvent<HTMLInputElement>) => {
-    toggleDisplayMatrix(false)
     setRowCount(Number(e.target.value) > 0 ? Number(e.target.value) : 0)
+    if (displayMatrix) {
+      if (Number(e.target.value) > rowCount) {
+        addNewRow()
+      } else if (Number(e.target.value) < rowCount) {
+        handleDeleteRow(rowCount)
+      }
+    }
   }
 
   const handleChangeCol = (e: React.ChangeEvent<HTMLInputElement>) => {
-    toggleDisplayMatrix(false)
     setColCount(Number(e.target.value) > 0 ? Number(e.target.value) : 0)
+    if (displayMatrix) {
+      if (Number(e.target.value) > colCount) {
+        addNewCol()
+      } else if (Number(e.target.value) < colCount) {
+        handleDeleteCol(colCount)
+      }
+    }
   }
   const handleChangeClosest = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClosestCount(Number(e.target.value) > 0 ? Number(e.target.value) : 0)
@@ -46,6 +62,7 @@ export const InputsBlock = () => {
         <InputItem key={item.label} {...item} />
       ))}
       <button
+        className="inputs-block__display"
         disabled={!rowCount || !colCount}
         onClick={() => toggleDisplayMatrix()}
       >

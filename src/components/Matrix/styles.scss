@@ -12,10 +12,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1;
+    min-height: 30px;
     background-color: var(--primary);
     border: 1px solid var(--text);
-    padding: 15px;
+    padding: 5px;
+    text-align: center;
 
     &:disabled {
       opacity: 1;
@@ -27,9 +28,17 @@
         background-color: var(--accent);
       }
     }
+
+    @media screen and (width >= 680px) {
+      padding: 10px;
+    }
   }
 }
 
 .highlighted {
   background-color: var(--secondary);
+}
+
+.icon {
+  width: 40px;
 }
