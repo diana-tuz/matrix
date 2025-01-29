@@ -6,12 +6,7 @@ import {
   useContext,
   useState,
 } from 'react'
-import {
-  calculateColumnPercents,
-  generateAmount,
-  generateCell,
-  generateRow,
-} from './tools'
+import { calculateColumnPercents, generateAmount, generateRow } from './tools'
 import { CellsListType } from './types'
 
 type ContextType = {
@@ -36,8 +31,6 @@ type ContextType = {
     toggleDisplayMatrix: (display?: boolean) => void
   }
   addNewRow: () => void
-  addNewCol: () => void
-  handleDeleteCol: (col: number) => void
   handleDeleteRow: (row: number) => void
   handleUpdateCellsList: (row: number, itemId?: string) => void
 }
@@ -64,8 +57,6 @@ const defaultValue: ContextType = {
     toggleDisplayMatrix: () => {},
   },
   addNewRow: () => {},
-  addNewCol: () => {},
-  handleDeleteCol: () => {},
   handleDeleteRow: () => {},
   handleUpdateCellsList: () => {},
 }
@@ -127,52 +118,26 @@ const ContextProvider: FC<PropsWithChildren> = ({ children }) => {
     setCellsList((prev) => {
       const updatedList = { ...prev }
       delete updatedList[row]
-      return updatedList
-    })
-  }
 
-  const handleDeleteCol = (col: number) => {
-    setCellsList((prev) => {
-      if (!prev) {
-        return prev
-      }
-      const updatedList = Object.keys(prev).reduce((acc, rowKey) => {
-        const row = prev[+rowKey]
-        if (!row || row.length === 0) return acc
-        const updatedRow = row.filter((_, index) => index !== col)
-        acc[+rowKey] = updatedRow
-        return acc
-      }, {} as CellsListType)
+      const percentsRow = calculateColumnPercents(updatedList, colCount)
 
-      return updatedList
-    })
-  }
-  const addNewCol = () => {
-    setCellsList((prev) => {
-      if (!prev) {
-        return prev
-      }
-      const updatedList = Object.keys(prev).reduce((acc, row) => {
-        return { ...acc, [row]: [...prev[+row], generateCell()] }
-      }, {} as CellsListType)
-
-      return updatedList
+      return { ...updatedList, [rowCount + 1]: percentsRow }
     })
   }
 
   const addNewRow = () => {
     setCellsList((prev) => {
-      if (!prev) {
-        return prev
-      }
-      const updatedList = {
-        ...prev,
-        [rowCount + 1]: generateRow(rowCount + 1, colCount),
-      }
+      if (!prev) return prev
 
-      return updatedList
+      const newRow = generateRow(rowCount, colCount)
+      const updatedList = { ...prev, [rowCount]: newRow }
+
+      const percentsRow = calculateColumnPercents(updatedList, colCount)
+
+      return { ...updatedList, [rowCount + 1]: percentsRow }
     })
   }
+
   const value = {
     rowCount: {
       rowCount,
@@ -191,9 +156,7 @@ const ContextProvider: FC<PropsWithChildren> = ({ children }) => {
       setCellsList,
     },
     displayMatrix: { displayMatrix, toggleDisplayMatrix },
-    addNewCol,
     addNewRow,
-    handleDeleteCol,
     handleDeleteRow,
     handleUpdateCellsList,
   }

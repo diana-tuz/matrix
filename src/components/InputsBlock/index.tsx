@@ -9,10 +9,8 @@ export const InputsBlock = () => {
     cellsList: { cellsList },
     closestCount: { closestCount, setClosestCount },
     displayMatrix: { displayMatrix, toggleDisplayMatrix },
-    addNewCol,
     addNewRow,
     handleDeleteRow,
-    handleDeleteCol,
   } = useCustomContext()
 
   const handleChangeRow = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,17 +26,13 @@ export const InputsBlock = () => {
 
   const handleChangeCol = (e: React.ChangeEvent<HTMLInputElement>) => {
     setColCount(Number(e.target.value) > 0 ? Number(e.target.value) : 0)
-    if (displayMatrix) {
-      if (Number(e.target.value) > colCount) {
-        addNewCol()
-      } else if (Number(e.target.value) < colCount) {
-        handleDeleteCol(colCount)
-      }
-    }
+    toggleDisplayMatrix(false)
   }
+
   const handleChangeClosest = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClosestCount(Number(e.target.value) > 0 ? Number(e.target.value) : 0)
   }
+
   const inputs = [
     {
       onChange: handleChangeRow,

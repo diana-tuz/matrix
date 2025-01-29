@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .container {
@@ -16,7 +17,7 @@
 
 .button {
   background-color: var(--primary);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--text);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -53,7 +53,7 @@ export const calculateColumnPercents = (
           }
         : {
             id: `${x}-percents`,
-            amount: columnSum * 0.5,
+            amount: +(columnSum * 0.5).toFixed(1),
           },
     )
   }

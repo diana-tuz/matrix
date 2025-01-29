@@ -6,8 +6,6 @@ import { calculateColumnPercents, generateRow } from '../../tools'
 import { CellsListType, CellType } from '../../types'
 
 import { icons } from '../../assets'
-import { DeleteColumn } from '../DeleteColumn'
-import { TableHeader } from '../TableHeader'
 import './styles.scss'
 
 export const Matrix = () => {
@@ -81,18 +79,38 @@ export const Matrix = () => {
   }
 
   const isHighlighted = (id: string) => highlightedCells.has(id)
+  const tableHeader = Array(colCount + 3).fill('')
 
   return (
     displayMatrix &&
     cellsList &&
     !!Object.keys(cellsList).length && (
       <div className="matrix">
-        <TableHeader />
+        <div
+          className={'matrix__grid'}
+          style={{
+            gridTemplateColumns: `repeat(${colCount + 3}, minmax(50px, 1fr))`,
+          }}
+        >
+          {tableHeader.map((_, index) => (
+            <div className="matrix__cell " key={index}>
+              {index !== tableHeader.length && index !== 0 && (
+                <p>
+                  {index > 0 && index !== colCount + 2
+                    ? index < colCount + 1
+                      ? `Cell values N=${index}`
+                      : 'Sum values'
+                    : 'Delete row'}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
         {Object.keys(cellsList).map((key) => (
           <div
             className={'matrix__grid'}
             style={{
-              gridTemplateColumns: `repeat(${colCount + 3}, minmax(40px, 1fr))`,
+              gridTemplateColumns: `repeat(${colCount + 3}, minmax(50px, 1fr))`,
             }}
             key={key}
           >
@@ -101,10 +119,11 @@ export const Matrix = () => {
                 {+key >= 0
                   ? +key < rowCount
                     ? `Cell values M=${+key + 1}`
-                    : '50th percentile'
+                    : '50%'
                   : ''}
               </p>
             </div>
+
             {cellsList[+key].map((item) => (
               <button
                 onMouseOver={() => {
@@ -118,7 +137,7 @@ export const Matrix = () => {
               >
                 {item.amount > 0
                   ? +key === selectedRow
-                    ? `${Math.round((item.amount / cellsList[+key][rowCount]?.amount) * 100)}%`
+                    ? `${Math.round((item.amount / cellsList[+key][colCount]?.amount) * 100)}%`
                     : item.amount
                   : ''}
               </button>
@@ -138,8 +157,6 @@ export const Matrix = () => {
             )}
           </div>
         ))}
-
-        <DeleteColumn />
       </div>
     )
   )
